@@ -1,0 +1,11 @@
+yarn prisma migrate dev
+
+docker exec -it pg bash
+psql -U root
+\c tcc
+\dt
+
+select * from Candidatos;
+
+
+nest g resource candidates > REST API

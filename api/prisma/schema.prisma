@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidato {
+  id           String       @id @default(uuid()) @db.Uuid
+  nome         String
+  email        String       @unique
+  partido      String
+  numero       Int          @default(0)
+  senha        String
+  cargoId      String       @db.Uuid
+  cargo        Cargo        @relation(fields: [cargoId], references: [id])
+  campanha     Campanha?
+  redesSociais RedeSocial[]
+
+  @@map("candidatos")
+}
+
+model Cargo {
+  id          String      @id @default(uuid()) @db.Uuid
+  nome        String
+  descricao   String
+  data_inicio DateTime
+  data_fim    DateTime
+  estado      String
+  cidade      String
+  municipio   String
+  candidato   Candidato[]
+
+  @@map("cargos")
+}
+
+model Campanha {
+  id          String       @id @default(uuid()) @db.Uuid
+  biografia   String
+  candidatoId String       @unique @db.Uuid
+  candidato   Candidato    @relation(fields: [candidatoId], references: [id], onDelete: Cascade)
+  apoios      Apoios[]
+  propostas   Proposta[]
+  realizacoes Realizacao[]
+  metas       Metas[]
+
+  @@map("campanhas")
+}
+
+model RedeSocial {
+  id          String    @id @default(uuid()) @db.Uuid
+  nome        String
+  link        String
+  candidatoId String    @db.Uuid
+  Candidato   Candidato @relation(fields: [candidatoId], references: [id], onDelete: Cascade)
+
+  @@map("redes_sociais")
+}
+
+model Proposta {
+  id         String    @id @default(uuid()) @db.Uuid
+  titulo     String
+  texto      String
+  campanha   Campanha? @relation(fields: [campanhaId], references: [id], onDelete: Cascade)
+  campanhaId String?   @db.Uuid
+
+  @@map("propostas")
+}
+
+model Apoios {
+  id         String    @id @default(uuid()) @db.Uuid
+  candidato  String
+  partido    String
+  campanha   Campanha? @relation(fields: [campanhaId], references: [id], onDelete: Cascade)
+  campanhaId String?   @db.Uuid
+
+  @@map("apoios")
+}
+
+model Realizacao {
+  id         String    @id @default(uuid()) @db.Uuid
+  titulo     String
+  texto      String
+  campanha   Campanha? @relation(fields: [campanhaId], references: [id], onDelete: Cascade)
+  campanhaId String?   @db.Uuid
+
+  @@map("realizacoes")
+}
+
+model Metas {
+  id         String    @id @default(uuid()) @db.Uuid
+  titulo     String
+  texto      String
+  campanha   Campanha? @relation(fields: [campanhaId], references: [id], onDelete: Cascade)
+  campanhaId String?   @db.Uuid
+
+  @@map("metas")
+}
