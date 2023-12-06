@@ -31,6 +31,12 @@ export class CandidatesRepository {
     });
   }
 
+  deleteCandidate(id: string) {
+    return this.prismaService.candidato.delete({
+      where: { id },
+    });
+  }
+
   findPresidents() {
     return this.prismaService.candidato.findMany({
       where: {
@@ -53,13 +59,18 @@ export class CandidatesRepository {
     });
   }
 
-  findByState(nome: string, estado: string) {
+  findByState(cargo: string, estado: string, cidade?: string) {
+    const where: any = {
+      cargo: {
+        nome: cargo,
+        estado: estado,
+        ...(cidade ? { cidade: cidade } : {}),
+      },
+    };
+
     return this.prismaService.candidato.findMany({
       where: {
-        cargo: {
-          nome: nome,
-          estado: estado,
-        },
+        AND: where,
       },
       include: {
         cargo: true,

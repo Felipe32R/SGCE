@@ -1,111 +1,40 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SignupParams, authService } from "../../../app/services/authService";
+import { authService } from "../../../app/services/authService";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-function validateCNPJ(cnpj: string) {
-  // Remova quaisquer caracteres não numéricos
-  cnpj = cnpj.replace(/[^\d]/g, '');
 
-  // Verifique se o CNPJ tem 14 dígitos
-  if (cnpj.length !== 14) {
-      return false;
-  }
-
-  // Verifique se o CNPJ não é uma sequência de dígitos iguais
-  if (/^(\d)\1{13}$/.test(cnpj)) {
-      return false;
-  }
-
-  // Calcula o primeiro dígito verificador
-  let soma = 0;
-  let peso = 5;
-  for (let i = 0; i < 12; i++) {
-      soma += parseInt(cnpj.charAt(i)) * peso;
-      peso--;
-      if (peso < 2) {
-          peso = 9;
-      }
-  }
-  var digito1 = 11 - (soma % 11);
-  if (digito1 > 9) {
-      digito1 = 0;
-  }
-
-  // Calcula o segundo dígito verificador
-  soma = 0;
-  peso = 6;
-  for (let i = 0; i < 13; i++) {
-      soma += parseInt(cnpj.charAt(i)) * peso;
-      peso--;
-      if (peso < 2) {
-          peso = 9;
-      }
-  }
-  var digito2 = 11 - (soma % 11);
-  if (digito2 > 9) {
-      digito2 = 0;
-  }
-  return  parseInt(cnpj.charAt(12)) === digito1 && parseInt(cnpj.charAt(13)) === digito2;
-}
-
-function validateFixPhoneNumber(phoneNumber: string | null) {
-  if (phoneNumber == null) return true;
-  // Remove caracteres não numéricos do telefone
-  phoneNumber = phoneNumber.replace(/[^\d]+/g, "");
-  // Verifica se o telefone possui 10 ou 11 dígitos (com DDD)
-  return /^(\d{10})$/.test(phoneNumber);
-}
-
-function validatePhoneNumber(phoneNumber: string | null) {
-  if (phoneNumber == null) return true;
-  // Remove caracteres não numéricos do telefone
-  phoneNumber = phoneNumber.replace(/[^\d]+/g, "");
-  // Verifica se o telefone possui 10 ou 11 dígitos (com DDD)
-  return /^(\d{11})$/.test(phoneNumber);
-}
 
 
 const schema = z
   .object({
-    name: z.string().nonempty("Nome é obrigatório."),
-    nameCompany: z.string().nonempty("Nome da empresa é obrigatório."),
+    nome: z.string().min(1,"Nome é obrigatório."),
+    partido: z.string().min(1,"Sigla do partido é obrigatório."),
     email: z
       .string()
-      .nonempty("E-mail é obrigatório.")
+      .min(1,"E-mail é obrigatório.")
       .email("Informe um e-mail válido."),
-    password: z
+    senha: z
       .string()
-      .nonempty("Senha é obrigatória.")
+      .min(1,"Senha é obrigatória.")
       .min(8, "Deve conter no mínimo 8 dígitos."),
-    confirmPassword: z
+    confirmarSenha: z
       .string()
-      .nonempty("Senha é obrigatória.")
+      .min(1,"Senha é obrigatória.")
       .min(8, "Deve conter no mínimo 8 dígitos."),
-    cnpj: z
-      .string()
-      .nonempty("CNPJ é obrigatório.")
-      .refine((value) => validateCNPJ(value), { message: "CNPJ inválido." }),
-    type: z.string().nonempty("Ramo de atuação é obrigatório."),
-    telephone: z
-      .string()
-      .refine((value) => validateFixPhoneNumber(value), {
-        message: "Número inválido.",
-      }).optional().or(z.literal("")),
-    cellphone: z
-      .string()
-      .nonempty("Número de celular é obrigatório.")
-      .refine((value) => validatePhoneNumber(value), {
-        message: "Número inválido.",
-      }),
+    cargoId: z.string().min(1,"Selecione um cargo."),
+    numero: z.string().min(1,"Número é obrigatório.").refine(data => !isNaN(Number(data)), {
+    message: 'O campo deve ser um número válido',
+  }),
+
     termsAndConditions: z.boolean(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.senha === data.confirmarSenha, {
     message: "Senhas não conferem",
-    path: ["confirmPassword"],
+    path: ["confirmarSenha"],
   });
 
 type FormData = z.infer<typeof schema>;
@@ -118,10 +47,13 @@ export function useRegisterController() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const navigate = useNavigate();
+  
 
   const { mutateAsync, isLoading } = useMutation({
     mutationKey: ["signup"],
-    mutationFn: async (data: SignupParams) => {
+    mutationFn: async (data: any) => {
+      delete data.termsAndConditions;
+      delete data.confirmarSenha;
       return authService.signup(data);
     },
   });
@@ -132,15 +64,14 @@ export function useRegisterController() {
       return;
     }
 
-    const cnpj = data.cnpj.replace(/[^\d]/g, "");
 
     try {
       await mutateAsync({
         ...data,
-        cnpj,
+        numero: Number(data.numero)
       });
       toast.success("Conta criada com sucesso!");
-      navigate("/login");
+      navigate("/registerCampaign");
     } catch (err) {
 
       toast.error(`Erro ao criar conta.`);

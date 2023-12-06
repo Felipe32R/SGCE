@@ -1,6 +1,5 @@
 
 export const localStorageKeys = {
-  ACCESS_TOKEN: 'nps:token',
-  USER: 'nps:user',
+  ACCESS_TOKEN: 'sgce:accessToken',
 
 }

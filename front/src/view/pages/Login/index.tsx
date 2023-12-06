@@ -30,10 +30,10 @@ export function Login() {
 
         <PasswordInput
         
-          type="password"
-          error={errors.password?.message}
+          type="senha"
+          error={errors.senha?.message}
           placeholder="Senha"
-          {...register("password")}
+          {...register("senha")}
           />
        
          

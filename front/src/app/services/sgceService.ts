@@ -32,8 +32,61 @@ interface MainActivitys {
   data: Array<string>;
 }
 
+async function getMyProfile() {
+  const { data } = await httpClient.get<any>(`/candidates/me`);
+  return data;
+}
+
 async function getPresidents() {
   const { data } = await httpClient.get<any>(`/candidates/presidents`);
+  return data;
+}
+
+async function createCampaign(params: any) {
+  const { data } = await httpClient.post<any>(`/campaigns/create`,params);
+  return data;
+}
+
+async function createGoal(params: any) {
+  const { data } = await httpClient.post<any>(`/goals`,params);
+  return data;
+}
+async function createRealization(params: any) {
+  const { data } = await httpClient.post<any>(`/realizations`,params);
+  return data;
+}
+async function createSocial(params: any) {
+  const { data } = await httpClient.post<any>(`/socials`,params);
+  return data;
+}
+async function createPropose(params: any) {
+  const { data } = await httpClient.post<any>(`/proposes`,params);
+  return data;
+}
+async function createSupport(params: any) {
+  const { data } = await httpClient.post<any>(`/support`,params);
+  return data;
+}
+
+async function deleteCandidate(id: string) {
+  const { data } = await httpClient.delete<any>(`/candidates/${id}`);
+  return data;
+}
+
+
+
+async function getCandidatesByState(cargo: string,state: string, city?: string) {
+  const { data } = await httpClient.post<any>(`/candidates/byState`,{cargo,state, city});
+  return data;
+}
+
+async function getCargos(cargo: string,state?: string, city?: string) {
+  const { data } = await httpClient.post<any[]>(`/positions/byState`,{cargo,state, city});
+  return data;
+}
+
+async function getStates() {
+  const { data } = await httpClient.get<any>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/`);
   return data;
 }
 
@@ -96,6 +149,17 @@ async function resetPassword(data: any) {
 
 export const sgceService = {
   getPresidents,
+  getStates,
+  getCandidatesByState,
+  getCargos,
+  createCampaign,
+  createGoal,
+  deleteCandidate,
+  createPropose,
+  createRealization,
+  createSocial,
+  createSupport,
+  getMyProfile,
   getNps,
   getEvaluations,
   getQrCode,

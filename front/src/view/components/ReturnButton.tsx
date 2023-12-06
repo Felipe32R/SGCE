@@ -7,7 +7,7 @@ function ReturnButton() {
   const navigate = useNavigate();
 
   return (
-    <button className="rounded-[50%] absolute top-[14%] left-10 text-blue-dark" onClick={() => navigate(-1)}><ArrowUDownLeft size={34} /></button>
+    <button className="rounded-[50%] absolute top-[14%] left-10 text-blue-dark" onClick={() => navigate(('/'),{state: {returnValue: true}})}><ArrowUDownLeft size={34} /></button>
   )
 }
 

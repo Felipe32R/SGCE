@@ -14,7 +14,7 @@ export function AuthGuard({ isPrivate }: AuthGuardProps){
   }
 
   if (signedIn && !isPrivate) {
-   return <Navigate to={'/nps'} replace/>
+   return <Navigate to={'/registerCampaign'} replace/>
 
   }
   return <Outlet/>

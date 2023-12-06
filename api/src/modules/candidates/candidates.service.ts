@@ -28,7 +28,11 @@ export class CandidatesService {
   async getPresidents() {
     return await this.candidatesRepository.findPresidents();
   }
-  async getByState(nome: string, estado: string) {
-    return await this.candidatesRepository.findByState(nome, estado);
+  async getByState(cargo: string, estado: string, cidade: string) {
+    return await this.candidatesRepository.findByState(cargo, estado, cidade);
+  }
+
+  async deleteCandidate(id: string) {
+    return await this.candidatesRepository.deleteCandidate(id);
   }
 }

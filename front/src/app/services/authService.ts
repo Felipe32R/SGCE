@@ -26,21 +26,20 @@ export interface SignupParams {
 
 export interface LoginParams{
   email: string;
-  password: string;
+  senha: string;
 }
 
 export interface LoginResponse{
-  token: string;
-  user: User;
+  accessToken: string;
 }
 
 async function signup(params: LoginParams){
-  const { data } = await httpClient.post<any>('/user', params);
+  const { data } = await httpClient.post<any>('/auth/signup', params);
   return data
 } 
 
 async function login(params: LoginParams){
-  const { data } = await httpClient.post<LoginResponse>('/user/login', params);
+  const { data } = await httpClient.post<LoginResponse>('/auth/signin', params);
   return data
 } 
 

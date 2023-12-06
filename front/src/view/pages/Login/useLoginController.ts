@@ -5,10 +5,11 @@ import { LoginParams, authService } from '../../../app/services/authService';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../hooks/useAuth';
+// import { useNavigate } from 'react-router-dom';
 
 const schema = z.object({
-  email: z.string().nonempty('E-mail é obrigatório.').email('Informe um e-mail válido.'),
-  password: z.string().nonempty('Senha é obrigatória.').min(8, 'Deve conter no mínimo 8 dígitos.'),
+  email: z.string().min(1,'E-mail é obrigatório.').email('Informe um e-mail válido.'),
+  senha: z.string().min(1,'Senha é obrigatória.').min(8, 'Deve conter no mínimo 8 dígitos.'),
 });
 
 type FormData = z.infer<typeof schema>
@@ -30,9 +31,9 @@ export function useLoginController() {
 
   const handleSubmit = hookFormHandleSubmit(async (data) => {
     try{
-    const { token, user } =  await mutateAsync(data);
+    const { accessToken } =  await mutateAsync(data);
 
-    signin(token, user)
+    signin(accessToken);
     }catch(err){
       toast.error(`Credenciais inválidas.`)
     }

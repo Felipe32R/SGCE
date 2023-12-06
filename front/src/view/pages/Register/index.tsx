@@ -3,25 +3,35 @@ import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { useRegisterController } from "./useRegisterController";
 import Modal from "react-modal";
-import { useGetMainActivitys } from "../EditProfile/useEditProfileController";
 import { Select } from "../../components/Select";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { XCircle } from "phosphor-react";
 import { PasswordInput } from "../../components/PasswordInput";
-import InputMask from "react-input-mask";
-import { CrossCircledIcon } from "@radix-ui/react-icons";
-import { cn } from "../../../utils/cn";
+import json from "../../../utils/states-cities.json";
+import { sgceService } from "../../../app/services/sgceService";
+
 
 export function Register() {
   const { handleSubmit, register, errors, isLoading } = useRegisterController();
-  const { mainActivitys } = useGetMainActivitys();
   const navigate = useNavigate();
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [cnpjFocus, setCnpjFocus] = useState(false);
-  const [telephoneFocus, setTelephoneFocus] = useState(false);
-  const [cellphoneFocus, setCellphoneFocus] = useState(false);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedCargo, setSelectedCargo] = useState("");
 
+
+  const [selectedStateCities, setSelectedStateCities] = useState<string[]>([]);
+  const [cargos, setCargos] = useState<any>();
+
+  const states = json.estados.map((state: any) => {
+    const obj = { nome: state.nome, sigla: state.sigla };
+
+    return obj;
+  });
+  const types = ["Presidente","Governador","Senador","Deputado Federal", "Deputado Estadual","Vereador","Prefeito"];
+  
   function openModal() {
     setIsOpen(true);
   }
@@ -29,6 +39,31 @@ export function Register() {
   function closeModal() {
     setIsOpen(false);
   }
+
+  useEffect(() => {
+    const selectedStateCities = json.estados.find(
+      (state: any) => state.sigla === selectedState
+    );
+    if (selectedStateCities) {
+      setSelectedStateCities(selectedStateCities?.cidades);
+    }
+  }, [selectedState]);
+
+  async function getCargos(){
+    try{
+      const cargos = await sgceService.getCargos(selectedType,selectedState, selectedCity)
+      console.log("cargos", cargos)
+      setCargos(cargos);
+    }catch(err){
+      console.log("Erro:", err)
+    }
+  }
+
+  useEffect(() => {
+    if(selectedState && selectedCity && selectedType){
+     getCargos();
+    }
+  },[selectedState,selectedCity, selectedType, selectedCargo])
 
   return (
     <>
@@ -72,7 +107,7 @@ export function Register() {
             <h1 className="font-medium mb-2">1. Introdução</h1>
             Este documento estabelece os termos de uso e a política de
             privacidade de dados para o acesso e utilização dos serviços
-            oferecidos por [Nome da Empresa], doravante referida como "Empresa".
+            oferecidos por SGCE, doravante referida como "Empresa".
             Ao utilizar nossos serviços, você concorda com os termos descritos
             neste documento.
           </p>
@@ -153,128 +188,118 @@ export function Register() {
           <Input
             type="string"
             placeholder="Nome"
-            {...register("name")}
-            error={errors.name?.message}
+            {...register("nome")}
+            error={errors.nome?.message}
           />
           <Input
             type="string"
-            placeholder="Nome da empresa"
-            {...register("nameCompany")}
-            error={errors.nameCompany?.message}
+            placeholder="Partido (SIGLA)"
+            {...register("partido")}
+            error={errors.partido?.message}
           />
         </div>
+        <div className="flex gap-2 items-center w-full">
+
+<div className="w-[350px]">
+
         <Input
+          
+          type="numero"
+          placeholder="Número de campanha"
+          {...register("numero")}
+          error={errors.numero?.message}
+          />
+          </div>
+          <div className="w-full">
+             <Input
           type="email"
           placeholder="E-mail"
           {...register("email")}
           error={errors.email?.message}
-        />
+          />
+          </div>
+          </div>
         <div className="grid grid-cols-2 gap-2">
           <PasswordInput
             type="password"
             placeholder="Senha"
-            {...register("password")}
-            error={errors.password?.message}
+            {...register("senha")}
+            error={errors.senha?.message}
           />
           <PasswordInput
             type="password"
             placeholder="Confirme a senha"
-            {...register("confirmPassword")}
-            error={errors.confirmPassword?.message}
+            {...register("confirmarSenha")}
+            error={errors.confirmarSenha?.message}
           />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            {cnpjFocus && (
-              <span className="text-xs text-blue-dark mb-[-13px] pt-1 absolute ml-3 font-mono">
-                CNPJ
-              </span>
-            )}
-            <InputMask
-              mask="99.999.999/9999-99"
-              {...register("cnpj")}
-              onFocusCapture={() => setCnpjFocus(true)}
-              onBlur={() => setCnpjFocus(false)}
-              placeholder="CNPJ"
-              className={cn(
-                " rounded-lg border border-gray-light pt-4 px-3 h-12 bg-white-main w-full peer placeholder-shown:pt-0 focus:border-gray-dark outline-none transition-all font-mono text-sm font-medium",
-                errors.cnpj && "!border-red-main"
-              )}
-            />
-            {errors.cnpj?.message && (
-              <div className="flex gap-1 items-center mt-2 text-red-main">
-                <CrossCircledIcon />
-                <span className="text-xs">{errors.cnpj?.message}</span>
-              </div>
-            )}
-          </div>
-          <Select
-            id="select"
-            {...register("type")}
-            error={errors.type?.message}
-          >
-            <option value="" disabled selected placeholder="Ramo">
-              Ramo
-            </option>
-            {mainActivitys &&
-              mainActivitys?.map((activity) => (
-                <option key={activity} value={activity}>
-                  {activity}
-                </option>
-              ))}
-          </Select>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            {telephoneFocus && (
-              <span className="text-xs text-blue-dark mb-[-13px] pt-1 absolute ml-3 font-mono ">
-                Telefone fixo (opcional)
-              </span>
-            )}
-            <InputMask
-              mask="(99) 9999-9999"
-              {...register("telephone")}
-              onFocusCapture={() => setTelephoneFocus(true)}
-              onBlur={() => setTelephoneFocus(false)}
-              placeholder="Telefone fixo (opcional)"
-              className={cn(
-                " rounded-lg border border-gray-light pt-4 px-3 h-12 bg-white-main w-full peer placeholder-shown:pt-0 focus:border-gray-dark outline-none transition-all font-medium  font-mono text-sm",
-                errors.telephone && "!border-red-main"
-              )}
-            />
-            {errors.telephone?.message && (
-              <div className="flex gap-1 items-center mt-2 text-red-main">
-                <CrossCircledIcon />
-                <span className="text-xs">{errors.telephone?.message}</span>
-              </div>
-            )}
-          </div>
-          <div>
-            {cellphoneFocus && (
-              <span className="text-xs text-blue-dark mb-[-13px] pt-1 absolute ml-3 font-mono">
-                Celular
-              </span>
-            )}
-            <InputMask
-              mask="(99) 99999-9999"
-              {...register("cellphone")}
-              onFocusCapture={() => setCellphoneFocus(true)}
-              onBlur={() => setCellphoneFocus(false)}
-              placeholder="Celular"
-              className={cn(
-                " rounded-lg border border-gray-light pt-4 px-3 h-12 bg-white-main w-full peer placeholder-shown:pt-0 focus:border-gray-dark outline-none transition-all font-mono text-sm font-medium",
-                errors.cellphone && "!border-red-main"
-              )}
-            />
+        <Select
+              defaultValue=""
+              onChange={(e) => setSelectedState(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione um estado
+              </option>
+              {states &&
+                states.map((uf: any) => (
+                  <option value={uf.sigla}>{uf.nome}</option>
+                ))}
+            </Select>
+            {
+              selectedState && (
+            <Select
+              defaultValue=""
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione uma cidade
+              </option>
+              {selectedStateCities &&
+                selectedStateCities.map((city: any) => (
+                  <option value={city}>{city}</option>
+                ))}
+            </Select>
 
-            {errors.cellphone?.message && (
-              <div className="flex gap-1 items-center mt-2 text-red-main">
-                <CrossCircledIcon />
-                <span className="text-xs">{errors.cellphone?.message}</span>
-              </div>
-            )}
-          </div>
+              )
+            }
         </div>
+          {selectedState && selectedCity && (
+        <div className="grid grid-cols-2 gap-2 border-[1px] rounded-md border-gray-light p-3 place-items-center">
+            <h2 className="w-full text-center">Que tipo de candidato você é?</h2>
+            <Select
+              defaultValue=""
+              onChange={(e) => setSelectedType(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione um tipo
+              </option>
+              {types &&
+                types.map((type: any) => (
+                  <option value={type}>{type}</option>
+                ))}
+            </Select>
+        </div>
+          )}
+       {selectedState && selectedCity && selectedType && (
+        <div className="grid grid-cols-2 gap-2 border-[1px] rounded-md border-gray-light p-3 place-items-center">
+            <h2 className="w-full text-center">Confirme o cargo desejado:</h2>
+            <Select
+              defaultValue=""
+              {...register("cargoId")}
+              onChange={(e) => setSelectedCargo(e.target.value)}
+            >
+              <option value="" disabled>
+                Selecione um cargo
+              </option>
+              {cargos &&
+                cargos.map((cargo: any) => (
+                  <option value={cargo.id}>{cargo.descricao}</option>
+                ))}
+            </Select>
+        </div>
+          )}
+        
         <div className="flex flex-col items-center justify-end text-blue-main text-xs font-mono">
           <div className="flex gap-2 w-full items-center">
             <input
@@ -291,7 +316,7 @@ export function Register() {
             </span>
           </div>
         </div>
-        <Button type="submit" className="mt-2" isLoading={isLoading}>
+        <Button type="submit" className="mt-2" isLoading={isLoading} disabled={!selectedCargo}>
           Criar conta
         </Button>
       </form>

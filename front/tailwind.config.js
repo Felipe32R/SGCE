@@ -27,7 +27,9 @@ export default {
         input: '#A6A9B2'
       },
       yellow: {
-        main: '#FFAD00',
+        main: '#ED7D2B',
+        light: '#f9ab46',
+
       },
       white: {
         main: '#fff',

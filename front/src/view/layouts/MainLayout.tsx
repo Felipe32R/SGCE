@@ -22,16 +22,16 @@ export function MainLayout() {
     <>
       <MobileNavBar activePage={activePage} setActivePage={setActivePage} />
       <div className="flex w-full h-full flex-col ">
-        <div className="hidden md:flex items-center justify-center h-18 bg-blue-dark p-5 pr-5 pl-5 w-full ">
+        <div className="flex items-center justify-center h-18 bg-blue-dark p-5 pr-5 pl-5 w-full fixed top-0">
           <img
             src={logo}
             className="h-6 cursor-pointer"
-            onClick={() => handlePageChange(1, '/nps')}
+            onClick={() => handlePageChange(1, '/')}
           />
       
         </div>
         
-       <div className='h-full w-full bg-blue-lighter'>
+       <div className='h-full w-full bg-blue-lighter overflow-y-scroll scroll-smooth'>
             <Outlet />
 
        </div>

@@ -13,6 +13,7 @@ import { ProposesModule } from './modules/proposes/proposes.module';
 import { RealizationsModule } from './modules/realizations/realizations.module';
 import { GoalsModule } from './modules/goals/goals.module';
 import { SupportModule } from './modules/support/support.module';
+import { PositionsModule } from './modules/positions/positions.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SupportModule } from './modules/support/support.module';
     RealizationsModule,
     GoalsModule,
     SupportModule,
+    PositionsModule,
   ],
   controllers: [CandidatesController],
   providers: [

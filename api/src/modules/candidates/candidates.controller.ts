@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CandidatesService } from './candidates.service';
 
 import { AuthGuard } from '../auth/auth.guard';
@@ -18,8 +27,17 @@ export class CandidatesController {
     return this.candidatesService.getPresidents();
   }
 
-  @Post('state')
+  @Post('byState')
   getByState(@Body() request: any) {
-    return this.candidatesService.getByState(request.nome, request.estado);
+    return this.candidatesService.getByState(
+      request.cargo,
+      request.state,
+      request.city,
+    );
+  }
+
+  @Delete(':id')
+  deleteCandidate(@Param('id') id: string) {
+    return this.candidatesService.deleteCandidate(id);
   }
 }

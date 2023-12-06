@@ -1,13 +1,11 @@
-import { Dispatch, createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 import { localStorageKeys } from "../config/localStorageKeys";
-import { User } from "../app/services/authService";
+
 
 interface AuthContextValue {
   signedIn: boolean;
-  signin: (token: string, user: User) => void;
+  signin: (accessToken: string) => void;
   signout: () => void;
-  user: User | null;
-  setUser: Dispatch<React.SetStateAction<User | null>>;
 }
 
 export const AuthContext = createContext({} as AuthContextValue);
@@ -21,17 +19,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return !!storedAccessToken;
   });
 
-  const [user, setUser] = useState<User | null>(() => {
-    const user = localStorage.getItem(localStorageKeys.USER);
-    if (user) {
-      return JSON.parse(user);
-    }
-  });
 
-  const signin = useCallback((token: string, user: User) => {
-    localStorage.setItem(localStorageKeys.ACCESS_TOKEN, token);
-    localStorage.setItem(localStorageKeys.USER, JSON.stringify(user));
-    setUser(user);
+
+  const signin = useCallback((accessToken: string) => {
+    localStorage.setItem(localStorageKeys.ACCESS_TOKEN, accessToken);
+
     setSignedIn(true);
   }, []);
 
@@ -42,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ signedIn, signin, signout, user, setUser }}>
+    <AuthContext.Provider value={{ signedIn, signin, signout}}>
       {children}
     </AuthContext.Provider>
   );
