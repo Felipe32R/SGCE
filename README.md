@@ -55,7 +55,7 @@ The project includes:
 - **Entity-Relationship Diagram**  
 - **Use Case Diagrams**  
 - **Sequence Diagrams**  
-- **Complete database initialization scripts**
+
 
 
 
