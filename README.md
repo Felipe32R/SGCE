@@ -14,7 +14,7 @@ This project was built to **streamline political campaign visibility**, providin
 
 The system consists of three core layers:
 
-1. **Frontend Application** — voter- and candidate-facing interface built with React.  
+1. **Frontend Application** — voter and candidate interface built with React.  
 2. **Backend API** — business logic and secure authentication built with NestJS.  
 3. **Database Layer** — PostgreSQL database fully modeled and configured from scratch.
 
